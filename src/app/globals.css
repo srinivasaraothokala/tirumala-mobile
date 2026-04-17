@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #111111;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: sans-serif;
+}
+/* ─── Brand Marquee ───────────────────────────────────── */
+@keyframes marquee-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-33.3333%); }
+}
+
+.brand-marquee-inner {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: marquee-scroll 50s linear infinite;
+}
+
+.brand-marquee-container:hover .brand-marquee-inner {
+  animation-play-state: paused;
+}

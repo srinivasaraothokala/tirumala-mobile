@@ -15,27 +15,36 @@ interface Brand {
 }
 
 // ─────────────────────────────────────────────
-// Constants — outside component
+// Constants
 // ─────────────────────────────────────────────
-const SLOT_WIDTH       = 160;  // px — every brand gets this exact box
+const SLOT_WIDTH       = 160;
 const JSDELIVR_BASE    = 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons';
 const SIMPLEICONS_BASE = 'https://cdn.simpleicons.org';
 
-// Build CDN source list for a brand
-const getSources = (brand: Brand): string[] =>
-  [
+// ✅ Brands we KNOW don't exist in simple-icons — skip CDN entirely,
+//    go straight to text fallback. No broken image flash.
+const TEXT_ONLY_BRANDS = new Set(['nothing', 'iqoo', 'micromax']);
+
+const getSources = (brand: Brand): string[] => {
+  // If this brand is known to have no CDN icon, return empty — text fallback immediately
+  if (TEXT_ONLY_BRANDS.has(brand.slug)) return [];
+
+  return [
     brand.customUrl,
     `${SIMPLEICONS_BASE}/${brand.slug}/ffffff`,
     `${JSDELIVR_BASE}/${brand.slug}.svg`,
   ].filter(Boolean) as string[];
+};
 
 // ─────────────────────────────────────────────
-// BrandLogo — memoised so it never re-renders on parent state change
+// BrandLogo
 // ─────────────────────────────────────────────
 const BrandLogo = React.memo(({ brand }: { brand: Brand }) => {
-  const sources           = getSources(brand);
+  const sources = getSources(brand);
+
+  // ✅ If no sources, start as failed immediately — shows text right away
   const [srcIndex, setSrcIndex] = useState(0);
-  const [failed,   setFailed]   = useState(false);
+  const [failed,   setFailed]   = useState(sources.length === 0);
   const [hovered,  setHovered]  = useState(false);
 
   const handleError = () => {
@@ -49,26 +58,31 @@ const BrandLogo = React.memo(({ brand }: { brand: Brand }) => {
   return (
     <div
       style={{
-        width:    `${SLOT_WIDTH}px`,
-        minWidth: `${SLOT_WIDTH}px`,
-        maxWidth: `${SLOT_WIDTH}px`,
-        display:  'flex',
-        alignItems: 'center',
+        width:          `${SLOT_WIDTH}px`,
+        minWidth:       `${SLOT_WIDTH}px`,
+        maxWidth:       `${SLOT_WIDTH}px`,
+        display:        'flex',
+        alignItems:     'center',
         justifyContent: 'center',
-        flexShrink: 0,
+        flexShrink:     0,
       }}
       aria-label={brand.name}
     >
       {failed ? (
-        // Text fallback — never a blank gap
+        // ✅ Text fallback — styled to look like a proper brand wordmark
         <span
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
           style={{
-            color:          'rgba(255,255,255,0.55)',
-            fontSize:       '11px',
-            fontWeight:     800,
-            letterSpacing:  '0.08em',
-            textTransform:  'uppercase',
-            whiteSpace:     'nowrap',
+            color:         hovered ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.5)',
+            fontSize:      brand.name.length > 6 ? '10px' : '12px',
+            fontWeight:    900,
+            letterSpacing: brand.name.length > 6 ? '0.15em' : '0.1em',
+            textTransform: 'uppercase',
+            whiteSpace:    'nowrap',
+            fontFamily:    'system-ui, sans-serif',
+            transition:    'color 0.25s ease',
+            userSelect:    'none',
           }}
         >
           {brand.name}
@@ -78,7 +92,6 @@ const BrandLogo = React.memo(({ brand }: { brand: Brand }) => {
           src={sources[srcIndex]}
           alt={brand.name}
           title={brand.name}
-          // ✅ lazy — CDN logos are below fold, don't block LCP
           loading="lazy"
           decoding="async"
           onError={handleError}
@@ -89,11 +102,9 @@ const BrandLogo = React.memo(({ brand }: { brand: Brand }) => {
             width:      'auto',
             maxWidth:   '120px',
             objectFit:  'contain',
-            // Force white regardless of original SVG color
             filter:     'brightness(0) invert(1)',
             opacity:    hovered ? 1 : 0.65,
             transform:  hovered ? 'scale(1.1)' : 'scale(1)',
-            // ✅ CSS transition instead of inline onMouseEnter style mutation
             transition: 'opacity 0.25s ease, transform 0.25s ease',
           }}
         />
@@ -108,14 +119,10 @@ BrandLogo.displayName = 'BrandLogo';
 // BrandSlider
 // ─────────────────────────────────────────────
 const BrandSlider = () => {
-  const trackRef = useRef<HTMLDivElement>(null);
-  // ✅ Pause animation on hover — better UX for users who want to read brand names
+  const trackRef          = useRef<HTMLDivElement>(null);
   const [paused, setPaused] = useState(false);
 
-  // Triple for seamless ultrawide loop
   const loopBrands = [...BRANDS, ...BRANDS, ...BRANDS];
-
-  // Total track width = slots * 3 sets
   const trackWidth = SLOT_WIDTH * BRANDS.length;
 
   return (
@@ -124,40 +131,35 @@ const BrandSlider = () => {
       style={{ background: '#050505' }}
       aria-label="Authorized mobile brand partners"
     >
-      {/* Inject keyframe animation + reduced-motion support via a <style> tag */}
       <style>{`
         @keyframes marquee {
           0%   { transform: translateX(0); }
           100% { transform: translateX(-${trackWidth}px); }
         }
         .brand-track {
-          display: flex;
+          display:    flex;
           align-items: center;
-          gap: 0;
-          /* Duration scales with brand count for consistent speed */
-          animation: marquee ${BRANDS.length * 2.2}s linear infinite;
+          gap:        0;
+          animation:  marquee ${BRANDS.length * 2.2}s linear infinite;
           will-change: transform;
         }
         .brand-track.paused {
           animation-play-state: paused;
         }
-        /* ✅ Respect user's reduced-motion preference */
         @media (prefers-reduced-motion: reduce) {
-          .brand-track {
-            animation: none;
-          }
+          .brand-track { animation: none; }
         }
       `}</style>
 
       {/* Section label */}
       <div className="text-center mb-10" aria-hidden="true">
         <p style={{
-          color:          'rgba(255,255,255,0.18)',
-          fontSize:       '10px',
-          textTransform:  'uppercase',
-          letterSpacing:  '0.65em',
-          fontWeight:     900,
-          margin:         0,
+          color:         'rgba(255,255,255,0.18)',
+          fontSize:      '10px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.65em',
+          fontWeight:    900,
+          margin:        0,
         }}>
           Authorized Mobile Brand Partner
         </p>
@@ -166,44 +168,35 @@ const BrandSlider = () => {
       {/* Scrolling track container */}
       <div
         style={{ position: 'relative', overflow: 'hidden' }}
-        // ✅ Pause on hover so users can read brand names
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
-        // ✅ Also pause on focus (keyboard users)
         onFocusCapture={() => setPaused(true)}
         onBlurCapture={() => setPaused(false)}
       >
         {/* Left vignette */}
-        <div
-          aria-hidden="true"
-          style={{
-            position:   'absolute',
-            inset:      '0 auto 0 0',
-            width:      'clamp(80px, 12vw, 220px)',
-            background: 'linear-gradient(to right, #050505 0%, #050505bb 55%, transparent 100%)',
-            zIndex:     10,
-            pointerEvents: 'none',
-          }}
-        />
+        <div aria-hidden="true" style={{
+          position:      'absolute',
+          inset:         '0 auto 0 0',
+          width:         'clamp(80px, 12vw, 220px)',
+          background:    'linear-gradient(to right, #050505 0%, #050505bb 55%, transparent 100%)',
+          zIndex:        10,
+          pointerEvents: 'none',
+        }} />
 
         {/* Right vignette */}
-        <div
-          aria-hidden="true"
-          style={{
-            position:   'absolute',
-            inset:      '0 0 0 auto',
-            width:      'clamp(80px, 12vw, 220px)',
-            background: 'linear-gradient(to left, #050505 0%, #050505bb 55%, transparent 100%)',
-            zIndex:     10,
-            pointerEvents: 'none',
-          }}
-        />
+        <div aria-hidden="true" style={{
+          position:      'absolute',
+          inset:         '0 0 0 auto',
+          width:         'clamp(80px, 12vw, 220px)',
+          background:    'linear-gradient(to left, #050505 0%, #050505bb 55%, transparent 100%)',
+          zIndex:        10,
+          pointerEvents: 'none',
+        }} />
 
         {/* Animated track */}
         <div
           ref={trackRef}
           className={`brand-track${paused ? ' paused' : ''}`}
-          // ✅ role="list" — screen readers understand this is a list of brands
           role="list"
         >
           {loopBrands.map((brand, index) => (

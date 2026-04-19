@@ -1,28 +1,196 @@
+/* C:\Users\styli\tirumala-mobile\src\app\globals.css */
+
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────────────────
+   CSS Custom Properties
+   ───────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #111111;
+  /* Colors */
+  --background:      #ffffff;
+  --foreground:      #111111;
+  --brand-red:       #E53935;
+  --brand-red-dark:  #c62828;
+  --brand-yellow:    #FBC02D;
+  --brand-dark:      #050505;
+
+  /* Typography */
+  --font-sans:   system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Transitions */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   Base Reset & Typography
+   ───────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* ✅ Smooth scroll for in-page anchor navigation (#mobiles, #contact etc) */
+  scroll-behavior: smooth;
+  /* ✅ Prevent font size inflation on iOS after orientation change */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: sans-serif;
+  background:  var(--background);
+  color:       var(--foreground);
+  font-family: var(--font-sans);
+  /* ✅ Subpixel antialiasing for sharper text on Mac/iOS */
+  -webkit-font-smoothing:  antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* ✅ Prevent horizontal scroll caused by overflowing elements */
+  overflow-x: hidden;
+  /* ✅ Consistent line height */
+  line-height: 1.5;
 }
-/* ─── Brand Marquee ───────────────────────────────────── */
+
+/* ✅ Responsive images by default — prevents overflow */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ✅ Inherit font for all form elements — browsers don't do this by default */
+input,
+textarea,
+button,
+select {
+  font: inherit;
+}
+
+/* ✅ Remove default list styles when role="list" is present */
+ul[role="list"],
+ol[role="list"] {
+  list-style: none;
+  margin:     0;
+  padding:    0;
+}
+
+/* ✅ Focus ring — visible for keyboard users, hidden for mouse users */
+:focus-visible {
+  outline:        2px solid var(--brand-red);
+  outline-offset: 3px;
+  border-radius:  4px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   Brand Marquee
+   ───────────────────────────────────────────────────────── */
 @keyframes marquee-scroll {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-33.3333%); }
+  /* ✅ -33.3333% = one full set (tripled array) — seamless loop */
 }
 
 .brand-marquee-inner {
-  display: flex;
-  width: max-content;
-  will-change: transform;
-  animation: marquee-scroll 50s linear infinite;
+  display:    flex;
+  width:      max-content;
+  will-change: transform;                    /* ✅ GPU layer hint */
+  animation:  marquee-scroll 50s linear infinite;
 }
 
-.brand-marquee-container:hover .brand-marquee-inner {
+/* ✅ Pause on hover — users can read brand names */
+.brand-marquee-container:hover .brand-marquee-inner,
+.brand-marquee-container:focus-within .brand-marquee-inner {
   animation-play-state: paused;
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   Gradient Animation — used in Offers.tsx hero banner
+   ───────────────────────────────────────────────────────── */
+@keyframes gradient-shift {
+  0%,
+  100% { background-position: 0% 50%;   }
+  50%  { background-position: 100% 50%; }
+}
+
+.animate-gradient {
+  animation:           gradient-shift 6s ease infinite;
+  background-size:     200% 200%;
+  background-position: 0% 50%;
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   Reduced Motion — respect user's OS accessibility setting
+   ALL animations must be suppressed here
+   ───────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration:   0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration:  0.01ms !important;
+    scroll-behavior:      auto   !important;
+  }
+
+  .brand-marquee-inner {
+    animation: none;
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   Scrollbar Styling — subtle, matches dark sections
+   ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width:  6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background:    rgba(0, 0, 0, 0.18);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   Selection Color — brand red highlight
+   ───────────────────────────────────────────────────────── */
+::selection {
+  background: var(--brand-red);
+  color:      #fff;
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   Utility: Screen-reader only — visually hidden but readable
+   Use for accessible labels that shouldn't be visible
+   e.g. <span className="sr-only">Open menu</span>
+   ───────────────────────────────────────────────────────── */
+.sr-only {
+  position:   absolute;
+  width:      1px;
+  height:     1px;
+  padding:    0;
+  margin:     -1px;
+  overflow:   hidden;
+  clip:       rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border:     0;
 }

@@ -54,12 +54,12 @@ const TRANSLATIONS: Record<Lang, Translation> = {
     cards: [
       {
         title:       'Exchange Offer',
-        description: 'Upgrade your old phone easily with the best market value valuation.',
+        description: 'Bring your old phone, get the best price, and upgrade easily.',
         badge:       'Save More',
       },
       {
         title:       'Open Box Deals',
-        description: 'Like-new premium phones at significantly lower prices with warranty.',
+        description: 'New premium phones at significantly lower prices with warranty.',
         badge:       'Top Seller',
       },
       {

@@ -137,7 +137,7 @@ const Footer = () => {
   const t      = TRANSLATIONS[safeLang];
   const links  = NAV_LINKS[safeLang];
   const location = safeLang === 'en'
-    ? `Main Road, ${SITE_CONFIG.location}`
+    ? `Siri Dental Line Shope ,OPP GMR grands , ${SITE_CONFIG.location} 522615`
     : `మెయిన్ రోడ్, ${SITE_CONFIG.location}`;
 
   return (

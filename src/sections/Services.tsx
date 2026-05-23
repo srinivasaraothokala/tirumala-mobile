@@ -50,12 +50,12 @@ const TRANSLATIONS: Record<Lang, Translation> = {
   en: {
     label:   'Services',
     heading: 'What We Offer',
-    subtext: 'Premium mobile solutions tailored for Narasaraopet. From the latest flagships to expert accessories.',
+    subtext: 'Premium mobile solutions tailored for Narasaraopet People . From the latest flagships to expert accessories.',
     cta:     'View Collection',
     cards: {
       new: {
         title: 'New Mobiles',
-        desc:  'Latest smartphones from top brands like Apple, Samsung, and OnePlus at unbeatable prices.',
+        desc:  'Latest smartphones from top brands like Apple, Samsung, and Google at unbeatable prices.',
       },
       preowned: {
         title: 'Pre-Owned',
@@ -63,7 +63,7 @@ const TRANSLATIONS: Record<Lang, Translation> = {
       },
       openbox: {
         title: 'Open Box',
-        desc:  'Mint condition unused devices with deep discounts.',
+        desc:  'Excellent condition unused devices with Good discounts.',
       },
       accs: {
         title: 'Accessories',

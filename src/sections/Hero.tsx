@@ -42,7 +42,7 @@ const TRANSLATIONS: Record<Lang, HeroTranslation> = {
     titleMain:    'Tirumala',
     titleSub:     'Cell Point',
     subtitle:     'Sales & Service – Best Price Deals',
-    description:  'Discover a curated selection of New Mobiles, certified Second-Hand, and Open Box devices alongside premium accessories tailored for your lifestyle.',
+    description:  'Discover a curated selection of New Mobiles, certified Second-Hand, and Open Box devices alongside premium accessories for your daily life.',
     callBtn:      'Call Now',
     waBtn:        'WhatsApp',
     trust1:       'Authenticity',
